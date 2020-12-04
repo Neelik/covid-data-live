@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Final Project - Daily Covid-19 Charts</title>
+    <meta name="description" content="Final Project">
+    <meta name="author" content="Garrett Allen">
+    <!-- BOOSTRAP JS -->
+    <!-- CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous">
+
+    <!-- jQuery and JS bundle w/ Popper.js -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ho+j7jyWK8fNQe+A12Hb8AhRq26LrZ/JpcUGGOn+Y7RsweNrtN/tE3MoK7ZeZDyx" crossorigin="anonymous"></script>
+
+    <script src="https://d3js.org/d3.v4.min.js"></script>
+    <script src="https://d3js.org/d3-color.v1.min.js"></script>
+    <script src="https://d3js.org/d3-interpolate.v1.min.js"></script>
+    <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
+    <script type="module" src="js/spin.js"></script>
+    <script type="module" src="js/load.js"></script>
+    <link rel="stylesheet" href="css/styles.css?v=1.0">
+    <link rel="stylesheet" href="css/spin.css?v=1.0">
+</head>
+<body>
+    <div id="spinner"></div>
+    <!-- Main Container -->
+    <div class="container mt-3 mb-2" id="container-main">
+        <div class="pb-2 mt-4 mb-2 border-bottom">
+            <div class="row">
+                <div class="col">
+                    <h1>Covid-19 Across the World</h1>
+                </div>
+                <div class="col">
+                    <form id="source-link" target="_blank" action="https://ourworldindata.org/coronavirus-data">
+                        <input type="submit" value="Source of Data" />
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Leaderboards -->
+        <div class="row mt-4">
+            <div class="col-sm">
+                <!-- Cases Table -->
+                <table class="table table-striped table-dark">
+                    <thead>
+                        <tr>
+                            <th scope="col">Nation</th>
+                            <th scope="col"># of Cases</th>
+                        </tr>
+                    </thead>
+                    <tbody id="cases-table-body">
+                    </tbody>
+                </table>
+            </div>
+            <div class="col-sm">
+                <!-- Deaths Table -->
+                <table class="table table-striped table-dark">
+                    <thead>
+                        <tr>
+                            <th scope="col">World Nation</th>
+                            <th scope="col"># of Deaths</th>
+                        </tr>
+                    </thead>
+                    <tbody id="deaths-table-body">
+                    </tbody>
+                </table>
+            </div>
+            <div class="col-sm">
+                <!-- Tests Table -->
+                <table class="table table-striped table-dark">
+                    <thead>
+                        <tr>
+                            <th scope="col">World Nation</th>
+                            <th scope="col"># of Tests</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tests-table-body">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div id="charts">
+            <div><button id="resetZoom"></button></div>
+            <!-- Initialize a select menus -->
+            <select id="nation-select"></select>
+            <!-- <ul class="dropdown-menu checkbox-menu allow-focus">
+                <li >
+                    <label>
+                        <input type="checkbox"> Cheese
+                    </label>
+                </li>
+            </ul> -->
+            <!-- <div class="totalsChartTitle">
+                <p>Total Cases & Deaths, Dec 2019. - Nov. 2020</p>
+            </div> -->
+            <!-- <svg id="totalsChart"></svg> -->
+            <div class="perMillionChartTitle">
+                <p>Cases and Deaths Per Million, Dec 2019. - Nov. 2020</p>
+            </div>
+            <svg id="perMillionChart"></svg>
+        <div>
+    </div>
+</body>
+</html>
