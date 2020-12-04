@@ -22,21 +22,21 @@ export const loadTables = function (worldData, nationsArray) {
     // Build the markup for the cases table rows
     let caseRows = "";
     cases.slice(1, 6).forEach((item, i) => {
-        caseRows += "<tr><td>" + item.nation + "</td><td>" + item.cases + "</td></tr>";
+        caseRows += "<tr><td>" + item.nation + "</td><td>" + item.cases.toLocaleString() + "</td></tr>";
     });
     $("#cases-table-body").html(caseRows);
 
     // Build the markup for the deaths table rows
     let deathRows = "";
     deaths.slice(1, 6).forEach((item, i) => {
-        deathRows += "<tr><td>" + item.nation + "</td><td>" + item.deaths + "</td></tr>";
+        deathRows += "<tr><td>" + item.nation + "</td><td>" + item.deaths.toLocaleString() + "</td></tr>";
     });
     $("#deaths-table-body").html(deathRows);
 
     // Build the markup for the tests table rows
     let testRows = "";
     tests.slice(0, 5).forEach((item, i) => {
-        testRows += "<tr><td>" + item.nation + "</td><td>" + item.tests + "</td></tr>";
+        testRows += "<tr><td>" + item.nation + "</td><td>" + item.tests.toLocaleString() + "</td></tr>";
     });
     $("#tests-table-body").html(testRows);
 }
