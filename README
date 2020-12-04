@@ -1,4 +1,9 @@
-Description
+Beta Version description
+
+This project has evolved a little since the original description was submitted. The audience remains the same, 
+
+
+Planned Description
 
 Two charts that display the total number of cases and deaths for Covid-19 from December 2019 to November 2020. The charts display the data for one
 nation at a time, with a provided drop down to select a nation. The charts support simultaneous or individual zoom/pan with a toggle button at the top
