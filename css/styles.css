@@ -13,8 +13,14 @@ body {
     text-align: center;
 }
 
-#resetZoom {
+.button-row {
+    width: 50%;
+}
+
+#resetZoom, #resetDefaults {
+    display: inline-block;
     margin: 10px 10px 10px 0px;
+    visibility: hidden;
 }
 
 #container-main {

@@ -92,7 +92,7 @@ export const renderPerMillionChart = function(data, width, height, margin) {
     var caseColor = d3.scaleOrdinal().domain(data)
         .range(["#FF6633", "#FFC300" , "#581845"]);
 
-    let cLines = pmsvg.append("g")
+    let cLines = perMillionGroup.append("g")
         .attr("class", "case-lines");
 
     cLines.selectAll(".case-lines-group")
@@ -101,7 +101,7 @@ export const renderPerMillionChart = function(data, width, height, margin) {
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
         .attr("class", "case-lines-group")
         .on("mouseover", function(d, i) {
-            pmsvg.append("text")
+            perMillionGroup.append("text")
                 .attr("class", "case-title-text")
                 .style("fill", caseColor(i))
                 .text(d[0].location + " (Cases)")
@@ -110,7 +110,7 @@ export const renderPerMillionChart = function(data, width, height, margin) {
                 .attr("y", margin.top - 3);
         })
         .on("mouseout", function(d) {
-            pmsvg.select(".case-title-text").remove();
+            perMillionGroup.select(".case-title-text").remove();
         })
         .append("path")
         .attr("class", "case-line")
@@ -137,7 +137,7 @@ export const renderPerMillionChart = function(data, width, height, margin) {
     var deathColor = d3.scaleOrdinal().domain(data)
         .range(["#D7BDE2", "#76448A", "#FF66CC"]);
 
-    let dLines = pmsvg.append("g")
+    let dLines = perMillionGroup.append("g")
         .attr("class", "death-lines");
 
     dLines.selectAll(".death-lines-group")
@@ -146,7 +146,7 @@ export const renderPerMillionChart = function(data, width, height, margin) {
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
         .attr("class", "death-lines-group")
         .on("mouseover", function(d, i) {
-            pmsvg.append("text")
+            perMillionGroup.append("text")
                 .attr("class", "death-title-text")
                 .style("fill", deathColor(i))
                 .text(d[0].location + " (Deaths)")
@@ -155,7 +155,7 @@ export const renderPerMillionChart = function(data, width, height, margin) {
                 .attr("y", margin.top - 3);
         })
         .on("mouseout", function(d) {
-            pmsvg.select(".death-title-text").remove();
+            perMillionGroup.select(".death-title-text").remove();
         })
         .append("path")
         .attr("class", "death-line")
@@ -182,6 +182,7 @@ export const renderPerMillionChart = function(data, width, height, margin) {
     //     .on("zoom", zoomed);
     //
     // var reset = d3.select('#resetZoom');
+    // reset.style("visibility", "visible");
     // reset.text("Reset Zoom");
     // reset.on("click", function() {
     //     pmsvg.transition().call(zoomPerMillion.transform, d3.zoomIdentity);

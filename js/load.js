@@ -7,6 +7,10 @@ document.addEventListener("DOMContentLoaded", function() {
     loadCharts();
 });
 
+// Set up reset default button
+let resetDefault = d3.select("#resetDefaults");
+resetDefault.text("Reset Defaults");
+
 function loadCharts() {
     var nations, selectedNation;
     var opts = {
@@ -35,6 +39,7 @@ function loadCharts() {
     // Begin processing data and rendering charts
     d3.csv("https://covid.ourworldindata.org/data/owid-covid-data.csv", function(data) {
         spinner.stop();
+        resetDefault.style("visibility", "visible");
         charts.style.visibility = "visible";
         var preset = "United States";
         var preprocessed = preprocess(data);
@@ -56,6 +61,13 @@ function loadCharts() {
         d3.select("#nation-select").property("value", preset);
         $("#nation-select").selectpicker("render");
         render([selectedNation]);
+        resetDefault.on("click", function() {
+            d3.select("#nation-select").property("value", preset);
+            $("#nation-select").selectpicker("render");
+
+            selectedNation = loadNationData(data, preset);
+            render([selectedNation]);
+        });
 
         function update(selectedNations) {
             // Create new data with the selection?
@@ -80,10 +92,6 @@ function loadCharts() {
             // Trigger rendering of chart with selected options
             update(arrSelected);
         });
-        // d3.select("#nation-select").on("change", function(d) {
-        //     var selectedOption = d3.select(this).property("value")
-        //     update(selectedOption)
-        // });
     });
 }
 
