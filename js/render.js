@@ -14,7 +14,6 @@ export const render = function(data) {
     var height = 300;
 
     // Render the charts
-    // renderTotalsChart(data, width, height, margin);
     renderPerMillionChart(data, width, height, margin);
 }
 
@@ -89,12 +88,15 @@ export const renderPerMillionChart = function(data, width, height, margin) {
 
     var cLineData = cLineFn(data);
 
+    var caseColor = d3.scaleOrdinal().domain(data)
+        .range(["#FF9933", "#FF6600", "#FF6666" , "#FF9999", "#FF99CC"]);
+
     var caseLine = perMillionGroup.append("g")
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
         .append("path")
         .datum(cLineData)
         .attr("d", cLineData)
-        .attr("stroke", "#FF8C00")
+        .attr("stroke", function(d){return caseColor(d) })
         .attr("stroke-width", 3)
         .style("fill", "none")
 
@@ -105,12 +107,15 @@ export const renderPerMillionChart = function(data, width, height, margin) {
 
     var dLineData = dLineFn(data);
 
+    var deathColor = d3.scaleOrdinal().domain(data)
+        .range(["#9400D3", "#9933FF", "#9999FF", "#CC00FF", "#CC99CC"]);
+
     var deathLine = perMillionGroup.append("g")
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
         .append("path")
         .datum(dLineData)
         .attr("d", dLineData)
-        .attr("stroke", "#9400D3")
+        .attr("stroke", function(d){return deathColor(d) })
         .attr("stroke-width", 3)
         .style("fill", "none")
 
@@ -151,154 +156,15 @@ export const renderPerMillionChart = function(data, width, height, margin) {
 }
 
 
-export const renderTotalsChart = function(data, width, height, margin) {
-    // append the svg object to the body of the page
-    var tsvg = d3.select("#totalsChart")
-        .attr("width", width + margin.left + margin.right)
-        .attr("height", height + margin.top + margin.bottom);
-
-    var totalsGroup = tsvg.append("g")
-        .attr("class", "totals-group");
-
-    // Set up X-axis
-    var dateMin = d3.min(data, d => d.date);
-    var dateMax = d3.max(data, d => d.date);
-
-    var xAxis = d3.scaleTime()
-        .domain([dateMin, dateMax])
-        .rangeRound([ 0, width ]);
-
-    // Set up Y-axis
-    var yAxesMinOptions = new Array(6);
-    yAxesMinOptions.push(d3.min(data, d => d.total_cases));
-    yAxesMinOptions.push(d3.min(data, d => d.total_deaths));
-    var yAxesMaxOptions = new Array(6)
-    yAxesMaxOptions.push(d3.max(data, d => d.total_cases));
-    yAxesMaxOptions.push(d3.max(data, d => d.total_deaths));
-    var yMin = d3.min(yAxesMinOptions);
-    var yMax = d3.max(yAxesMaxOptions);
-
-    var yAxis = d3.scaleLinear()
-        .domain( [yMin, yMax * 1.25])
-        .range([ height, 0 ]);
-
-    // Set up Groups for Totals Chart
-    var gtX = totalsGroup.append("g")
-        .attr("height", margin.bottom)
-        .attr("transform", "translate(" + (margin.left) + "," + (height + margin.top) + ")")
-        .attr("class", "axis axis--x")
-        .call(xAxis);
-    gtX.append("g")
-        .call(d3.axisBottom(xAxis));
-
-    var gtY = totalsGroup.append("g")
-        .attr("width", margin.left)
-        .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
-        .attr("class", "axis axis--y")
-        .call(yAxis);
-    gtY.append("g")
-        .call(d3.axisLeft(yAxis));
-
-        // add the X gridlines
-    totalsGroup.append("g")
-        .attr("class", "grid")
-        .attr("transform", "translate(" + (margin.left) + "," + (height + margin.top) + ")")
-        .call(make_x_gridlines(xAxis)
-            .tickSize(-height)
-            .tickFormat(""));
-
-    // add the Y gridlines
-    totalsGroup.append("g")
-        .attr("class", "grid")
-        .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
-        .call(make_y_gridlines(yAxis)
-            .tickSize(-width)
-            .tickFormat(""));
-
-    // Line for Cases
-    var cLineFn = d3.line()
-        .x(d => xAxis(d.date))
-        .y(d => yAxis(d.total_cases))
-
-    var cLineData = cLineFn(data);
-
-    var caseColor = d3.scaleOrdinal().domain(data)
-        .range(["#FF9933", "#FF6600", "#FF6666" , "#FF9999", "#FF99CC"]);
-
-    var caseLine = totalsGroup.append("g")
-        .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
-        .append("path")
-        .datum(cLineData)
-        .attr("d", cLineData)
-        .attr("stroke", function(d){return caseColor(d) })
-        .attr("stroke-width", 3)
-        .style("fill", "none")
-
-    // Line for Deaths
-    var dLineFn = d3.line()
-        .x(d => xAxis(d.date))
-        .y(d => yAxis(d.total_deaths))
-
-    var dLineData = dLineFn(data);
-
-    var deathColor = d3.scaleOrdinal().domain(data)
-        .range(["#9400D3", "#9933FF", "#9999FF", "#CC00FF", "#CC99CC"]);
-
-    var deathLine = totalsGroup.append("g")
-        .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
-        .append("path")
-        .datum(dLineData)
-        .attr("d", dLineData)
-        .attr("stroke", function(d){return deathColor(d) })
-        .attr("stroke-width", 3)
-        .style("fill", "none")
-
-    // Set up Zoom handling
-    var zoomTotals = d3.zoom()
-        .scaleExtent([1, Infinity])
-        .translateExtent([[0, 0], [width, height]])
-        .extent([[0, 0], [width, height]])
-        .on("zoom", zoomed);
-
-    var reset = d3.select('#resetZoom');
-    reset.text("Reset Zoom");
-    reset.on("click", function() {
-        tsvg.transition().call(zoomTotals.transform, d3.zoomIdentity);
-    });
-
-    tsvg.call(zoomTotals);
-
-    function zoomed() {
-        if (d3.event.sourceEvent != null) {
-            if (d3.event.sourceEvent.target.id == "totalsChart") {
-                var newXAxis = d3.event.transform.rescaleX(xAxis);
-                cLineFn.x(d => newXAxis(d.date));
-                dLineFn.x(d => newXAxis(d.date));
-                var newCPlot = cLineFn(data);
-                var newDPlot = dLineFn(data);
-                caseLine.attr("d", newCPlot);
-                deathLine.attr("d", newDPlot);
-                gtX.call(d3.axisBottom(newXAxis));
-                tsvg.append("defs").append("clipPath").attr("id","clip")
-                      .append("rect").attr("width",width).attr("height",height);
-                caseLine.attr("clip-path","url(#clip)");
-                deathLine.attr("clip-path","url(#clip)");
-            }
-        } else {
-            render(data);
-        }
-    }
-
-}
-
 // gridlines in x axis function
 function make_x_gridlines(axis) {
     return d3.axisBottom(axis)
         .ticks(15)
 }
 
+
 // gridlines in y axis function
 function make_y_gridlines(axis) {
     return d3.axisLeft(axis)
-        .ticks(15)
+        .ticks(10)
 }

@@ -1,6 +1,4 @@
-import { filterByNation } from "./data.js";
-import { loadNations } from "./data.js";
-import { preprocess } from "./data.js";
+import { filterByNation, loadNations, preprocess } from "./data.js";
 
 export const loadTables = function (worldData, nationsArray) {
     let maxSize = nationsArray.length;

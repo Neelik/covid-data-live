@@ -1,8 +1,6 @@
 import { loadTables } from "./tables.js";
 import { preprocess } from "./data.js";
-import { render, renderPerMillionChart, renderTotalsChart } from "./render.js";
-// import { renderTotalsChart } from "./render.js";
-// import { renderPerMillionChart } from "./render.js";
+import { render, renderPerMillionChart } from "./render.js";
 
 // Add event listener to add charts after page load
 document.addEventListener("DOMContentLoaded", function() {
@@ -35,7 +33,6 @@ function loadCharts() {
     var target = document.getElementById("spinner");
     var spinner = new Spin.Spinner(opts).spin(target);
     // Begin processing data and rendering charts
-    // d3.csv("data/owid-covid-data-fillna.csv", function(data) {
     d3.csv("https://covid.ourworldindata.org/data/owid-covid-data.csv", function(data) {
         spinner.stop();
         charts.style.visibility = "visible";
@@ -53,10 +50,11 @@ function loadCharts() {
             .enter()
                 .append('option')
             .text(function (d) { return d; })
-            .attr("value", function (d) { return d; })
+            .attr("value", function (d) { return d; });
 
         // Set the selected option to United States
         d3.select("#nation-select").property("value", preset);
+        $("#nation-select").selectpicker("render");
         render(selectedNation)
 
         function update(selectedNation) {
