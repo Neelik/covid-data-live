@@ -222,12 +222,15 @@ export const renderTotalsChart = function(data, width, height, margin) {
 
     var cLineData = cLineFn(data);
 
+    var caseColor = d3.scaleOrdinal().domain(data)
+        .range(["#FF9933", "#FF6600", "#FF6666" , "#FF9999", "#FF99CC"]);
+
     var caseLine = totalsGroup.append("g")
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
         .append("path")
         .datum(cLineData)
         .attr("d", cLineData)
-        .attr("stroke", "#FF8C00")
+        .attr("stroke", function(d){return caseColor(d) })
         .attr("stroke-width", 3)
         .style("fill", "none")
 
@@ -238,12 +241,15 @@ export const renderTotalsChart = function(data, width, height, margin) {
 
     var dLineData = dLineFn(data);
 
+    var deathColor = d3.scaleOrdinal().domain(data)
+        .range(["#9400D3", "#9933FF", "#9999FF", "#CC00FF", "#CC99CC"]);
+
     var deathLine = totalsGroup.append("g")
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
         .append("path")
         .datum(dLineData)
         .attr("d", dLineData)
-        .attr("stroke", "#9400D3")
+        .attr("stroke", function(d){return deathColor(d) })
         .attr("stroke-width", 3)
         .style("fill", "none")
 
