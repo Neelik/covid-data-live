@@ -1,6 +1,6 @@
 import { loadTables } from "./tables.js";
 import { preprocess } from "./data.js";
-import { render, renderPerMillionChart } from "./render.js";
+import { render } from "./render.js";
 
 // Add event listener to add charts after page load
 document.addEventListener("DOMContentLoaded", function() {
@@ -55,19 +55,35 @@ function loadCharts() {
         // Set the selected option to United States
         d3.select("#nation-select").property("value", preset);
         $("#nation-select").selectpicker("render");
-        render(selectedNation)
+        render([selectedNation]);
 
-        function update(selectedNation) {
+        function update(selectedNations) {
             // Create new data with the selection?
-            var dataFilter = loadNationData(data, selectedNation);
+            let dataFilter = [];
+            selectedNations.forEach((item, i) => {
+                dataFilter.push(loadNationData(data, item));
+            });
+
+            // var dataFilter = loadNationData(data, selectedNations[0]);
             render(dataFilter);
         }
 
         // When the button is changed, run the updateChart function
-        d3.select("#nation-select").on("change", function(d) {
-            var selectedOption = d3.select(this).property("value")
-            update(selectedOption)
+        $("#nation-select").on("changed.bs.select", function(e, clickedIndex, isSelected, perviousValue) {
+            // Get array of selected items
+            let selected = $(this).find("option:selected");
+            let arrSelected = [];
+            selected.each(function() {
+                arrSelected.push($(this).val());
+            });
+
+            // Trigger rendering of chart with selected options
+            update(arrSelected);
         });
+        // d3.select("#nation-select").on("change", function(d) {
+        //     var selectedOption = d3.select(this).property("value")
+        //     update(selectedOption)
+        // });
     });
 }
 

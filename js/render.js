@@ -1,7 +1,6 @@
 export const render = function(data) {
     // Remove old charts
     d3.select(".pm-group").remove();
-    d3.select(".totals-group").remove();
 
     // set the dimensions and margins of the graph
     var width = 900;
@@ -13,7 +12,7 @@ export const render = function(data) {
     };
     var height = 300;
 
-    // Render the charts
+    // Render the chart
     renderPerMillionChart(data, width, height, margin);
 }
 
@@ -26,9 +25,10 @@ export const renderPerMillionChart = function(data, width, height, margin) {
     var perMillionGroup = pmsvg.append("g")
         .attr("class", "pm-group");
 
-    // Set up X-axis
-    var dateMin = d3.min(data, d => d.date);
-    var dateMax = d3.max(data, d => d.date);
+    // Set up X-axis -- using index 0 because all dates are all same range
+    // console.log(data);
+    var dateMin = d3.min(data[0], d => d.date);
+    var dateMax = d3.max(data[0], d => d.date);
 
     var pmXAxis = d3.scaleTime()
         .domain([dateMin, dateMax])
@@ -36,11 +36,14 @@ export const renderPerMillionChart = function(data, width, height, margin) {
 
     // Set up Y-Axis
     var pmYAxesMinOptions = new Array(6);
-    pmYAxesMinOptions.push(d3.min(data, d => d.total_cases_per_million));
-    pmYAxesMinOptions.push(d3.min(data, d => d.total_deaths_per_million));
     var pmYAxesMaxOptions = new Array(6)
-    pmYAxesMaxOptions.push(d3.max(data, d => d.total_cases_per_million));
-    pmYAxesMaxOptions.push(d3.max(data, d => d.total_deaths_per_million));
+    data.forEach((item, i) => {
+        pmYAxesMinOptions.push(d3.min(item, d => d.total_cases_per_million));
+        pmYAxesMinOptions.push(d3.min(item, d => d.total_deaths_per_million));
+        pmYAxesMaxOptions.push(d3.max(item, d => d.total_cases_per_million));
+        pmYAxesMaxOptions.push(d3.max(item, d => d.total_deaths_per_million));
+    });
+
     var pmYMin = d3.min(pmYAxesMinOptions);
     var pmYMax = d3.max(pmYAxesMaxOptions);
 
@@ -86,73 +89,159 @@ export const renderPerMillionChart = function(data, width, height, margin) {
         .x(d => pmXAxis(d.date))
         .y(d => pmYAxis(d.total_cases_per_million))
 
-    var cLineData = cLineFn(data);
-
     var caseColor = d3.scaleOrdinal().domain(data)
-        .range(["#FF9933", "#FF6600", "#FF6666" , "#FF9999", "#FF99CC"]);
+        .range(["#FF6633", "#FFC300" , "#581845"]);
 
-    var caseLine = perMillionGroup.append("g")
+    let cLines = pmsvg.append("g")
+        .attr("class", "case-lines");
+
+    cLines.selectAll(".case-lines-group")
+        .data(data).enter()
+        .append("g")
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+        .attr("class", "case-lines-group")
+        .on("mouseover", function(d, i) {
+            pmsvg.append("text")
+                .attr("class", "case-title-text")
+                .style("fill", caseColor(i))
+                .text(d[0].location + " (Cases)")
+                .attr("text-anchor", "middle")
+                .attr("x", (width / 2) + margin.left)
+                .attr("y", margin.top - 3);
+        })
+        .on("mouseout", function(d) {
+            pmsvg.select(".case-title-text").remove();
+        })
         .append("path")
-        .datum(cLineData)
-        .attr("d", cLineData)
-        .attr("stroke", function(d){return caseColor(d) })
-        .attr("stroke-width", 3)
+        .attr("class", "case-line")
+        .attr("d", d => cLineFn(d))
+        .style("stroke", (d, i) => caseColor(i))
+        .style("stroke-width", 3)
         .style("fill", "none")
+        .on("mouseover", function(d) {
+            d3.selectAll(".case-line")
+                .style("stroke-width", 5)
+                .style("cursor", "pointer");
+        })
+        .on("mouseout", function(d) {
+            d3.selectAll(".case-line")
+                .style("stroke-width", 3)
+                .style("cursor", "none");
+        });
 
     // Line for Deaths Per Million
     var dLineFn = d3.line()
         .x(d => pmXAxis(d.date))
-        .y(d => pmYAxis(d.total_deaths_per_million))
-
-    var dLineData = dLineFn(data);
-
+        .y(d => pmYAxis(d.total_deaths_per_million));
+    //
     var deathColor = d3.scaleOrdinal().domain(data)
-        .range(["#9400D3", "#9933FF", "#9999FF", "#CC00FF", "#CC99CC"]);
+        .range(["#D7BDE2", "#76448A", "#FF66CC"]);
 
-    var deathLine = perMillionGroup.append("g")
+    let dLines = pmsvg.append("g")
+        .attr("class", "death-lines");
+
+    dLines.selectAll(".death-lines-group")
+        .data(data).enter()
+        .append("g")
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+        .attr("class", "death-lines-group")
+        .on("mouseover", function(d, i) {
+            pmsvg.append("text")
+                .attr("class", "death-title-text")
+                .style("fill", deathColor(i))
+                .text(d[0].location + " (Deaths)")
+                .attr("text-anchor", "middle")
+                .attr("x", (width / 2) + margin.left)
+                .attr("y", margin.top - 3);
+        })
+        .on("mouseout", function(d) {
+            pmsvg.select(".death-title-text").remove();
+        })
         .append("path")
-        .datum(dLineData)
-        .attr("d", dLineData)
-        .attr("stroke", function(d){return deathColor(d) })
-        .attr("stroke-width", 3)
+        .attr("class", "death-line")
+        .attr("d", d => dLineFn(d))
+        .style("stroke", (d, i) => deathColor(i))
+        .style("stroke-width", 3)
         .style("fill", "none")
+        .on("mouseover", function(d) {
+            d3.selectAll(".death-line")
+                .style("stroke-width", 5)
+                .style("cursor", "pointer");
+        })
+        .on("mouseout", function(d) {
+            d3.selectAll(".death-line")
+                .style("stroke-width", 3)
+                .style("cursor", "none");
+        });
 
-    var zoomPerMillion = d3.zoom()
-        .scaleExtent([1, Infinity])
-        .translateExtent([[0, 0], [width, height]])
-        .extent([[0, 0], [width, height]])
-        .on("zoom", zoomed);
+    // Zoom Handling
+    // var zoomPerMillion = d3.zoom()
+    //     .scaleExtent([1, Infinity])
+    //     .extent([[margin.left, 0], [width - margin.right, height]])
+    //     .translateExtent([[margin.left, -Infinity], [width - margin.right, Infinity]])
+    //     .on("zoom", zoomed);
+    //
+    // var reset = d3.select('#resetZoom');
+    // reset.text("Reset Zoom");
+    // reset.on("click", function() {
+    //     pmsvg.transition().call(zoomPerMillion.transform, d3.zoomIdentity);
+    // });
+    //
+    // pmsvg.call(zoomPerMillion);
 
-    var reset = d3.select('#resetZoom');
-    reset.text("Reset Zoom");
-    reset.on("click", function() {
-        pmsvg.transition().call(zoomPerMillion.transform, d3.zoomIdentity);
-    });
-
-    pmsvg.call(zoomPerMillion);
-
-    function zoomed() {
-        if (d3.event.sourceEvent != null) {
-            if (d3.event.sourceEvent.target.id == "perMillionChart") {
-                var newXAxis = d3.event.transform.rescaleX(pmXAxis);
-                cLineFn.x(d => newXAxis(d.date));
-                dLineFn.x(d => newXAxis(d.date));
-                var newCPlot = cLineFn(data);
-                var newDPlot = dLineFn(data);
-                caseLine.attr("d", newCPlot);
-                deathLine.attr("d", newDPlot);
-                gpmX.call(d3.axisBottom(newXAxis));
-                pmsvg.append("defs").append("clipPath").attr("id","clip")
-                      .append("rect").attr("width",width).attr("height",height);
-                caseLine.attr("clip-path","url(#clip)");
-                deathLine.attr("clip-path","url(#clip)");
-            }
-        } else {
-            render(data);
-        }
-    }
+    // function zoomed() {
+    //     if (d3.event.sourceEvent != null) {
+    //         if (d3.event.sourceEvent.target.id == "perMillionChart") {
+    //
+    //             // Rescale Axes
+    //             let newXAxis = d3.event.transform.rescaleX(pmXAxis),
+    //                 newYAxis = d3.event.transform.rescaleY(pmYAxis);
+    //
+    //             cLineFn.x(d => newXAxis(d.date));
+    //             cLineFn.y(d => newYAxis(d.total_cases_per_million));
+    //             dLineFn.x(d => newXAxis(d.date));
+    //             dLineFn.y(d => newYAxis(d.total_deaths_per_million));
+    //             //
+    //             gpmX.call(d3.axisBottom(newXAxis));
+    //             gpmY.call(d3.axisLeft(newYAxis));
+    //
+    //             // let xt = myTransform.rescaleX(newXAxis),
+    //             //     yt = myTransform.rescaleY(newYAxis);
+    //             //
+    //             // let newCLine = d3.line()
+    //             //     .x(d => xt(d.date))
+    //             //     .y(d => yt(d.total_cases_per_million));
+    //             //
+    //             // let newDLine = d3.line()
+    //             //     .x(d => xt(d.date))
+    //             //     .y(d => yt(d.total_deaths_per_million));
+    //             //
+    //             // d3.selectAll(".case-line")
+    //             //     .enter()
+    //             //     .attr("d", d => newCLine(d));
+    //
+    //
+    //             //
+    //             pmsvg.selectAll(".case-lines-group")
+    //                 .data(data).enter()
+    //                 .attr("d", d => cLineFn(data));
+    //             //
+    //             // dLines.selectAll(".death-lines-group")
+    //             //     .data(data).enter()
+    //             //     .attr("d", newDPlot);
+    //
+    //             // caseLine.attr("d", newCPlot);
+    //             // deathLine.attr("d", newDPlot);
+    //
+    //             // pmsvg.append("defs").append("clipPath").attr("id","clip")
+    //             //       .append("rect").attr("width",width).attr("height",height);
+    //             // caseLine.attr("clip-path","url(#clip)");
+    //             // deathLine.attr("clip-path","url(#clip)");
+    //         }
+    //     } else {
+    //         render(data);
+    //     }
+    // }
 }
 
 
