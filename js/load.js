@@ -12,6 +12,12 @@ let resetDefault = d3.select("#resetDefaults");
 resetDefault.text("Reset Defaults");
 
 function loadCharts() {
+    let today = new Date();
+    let month = today.toLocaleString("default", {month: "short"});
+    let year = today.getFullYear();
+    // Set chart chartTitle
+    $(".chartTitle").text("Cases and Deaths Per Million (Log Scale), Dec. 2019 - " + month + ". " + year);
+
     let nations, selectedNation;
     let opts = {
           lines: 13, // The number of lines to draw
