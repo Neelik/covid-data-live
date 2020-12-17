@@ -19,25 +19,24 @@ export const render = function(data) {
 
 
 export const renderPerMillionChart = function(data, width, height, margin) {
-    var pmsvg = d3.select("#perMillionChart")
+    let pmsvg = d3.select("#perMillionChart")
         .attr("width", width + margin.left + margin.right)
         .attr("height", height + margin.top + margin.bottom);
 
-    var perMillionGroup = pmsvg.append("g")
+    let perMillionGroup = pmsvg.append("g")
         .attr("class", "pm-group");
 
     // Set up X-axis -- using index 0 because all dates are all same range
-    // console.log(data);
-    var dateMin = d3.min(data[0], d => d.date);
-    var dateMax = d3.max(data[0], d => d.date);
+    let dateMin = d3.min(data[0], d => d.date);
+    let dateMax = d3.max(data[0], d => d.date);
 
-    var pmXAxis = d3.scaleTime()
+    let pmXAxis = d3.scaleTime()
         .domain([dateMin, dateMax])
         .rangeRound([ 0, width ]);
 
     // Set up Y-Axis
-    var pmYAxesMinOptions = new Array(6);
-    var pmYAxesMaxOptions = new Array(6)
+    let pmYAxesMinOptions = new Array(6);
+    let pmYAxesMaxOptions = new Array(6)
     data.forEach((item, i) => {
         pmYAxesMinOptions.push(d3.min(item, d => d.total_cases_per_million));
         pmYAxesMinOptions.push(d3.min(item, d => d.total_deaths_per_million));
@@ -45,17 +44,17 @@ export const renderPerMillionChart = function(data, width, height, margin) {
         pmYAxesMaxOptions.push(d3.max(item, d => d.total_deaths_per_million));
     });
 
-    var pmYMin = d3.min(pmYAxesMinOptions) == 0 ? 10 : d3.min(pmYAxesMinOptions);
-    var pmYMax = d3.max(pmYAxesMaxOptions);
+    let pmYMin = d3.min(pmYAxesMinOptions) == 0 ? 10 : d3.min(pmYAxesMinOptions);
+    let pmYMax = d3.max(pmYAxesMaxOptions);
 
-    var pmYAxis = d3.scaleLog()
+    let pmYAxis = d3.scaleLog()
         .domain( [pmYMin, pmYMax])
         .range([ height, 0 ])
         .clamp(true)
         .nice();
 
     // Set up groups for the Per Million Chart
-    var gpmX = perMillionGroup.append("g")
+    let gpmX = perMillionGroup.append("g")
         .attr("height", margin.bottom)
         .attr("transform", "translate(" + (margin.left) + "," + (height + margin.top) + ")")
         .attr("class", "axis axis--x")
@@ -63,7 +62,7 @@ export const renderPerMillionChart = function(data, width, height, margin) {
     gpmX.append("g")
         .call(d3.axisBottom(pmXAxis));
 
-    var gpmY = perMillionGroup.append("g")
+    let gpmY = perMillionGroup.append("g")
         .attr("width", margin.left)
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
         .attr("class", "axis axis--y")
@@ -71,28 +70,28 @@ export const renderPerMillionChart = function(data, width, height, margin) {
     gpmY.append("g")
         .call(d3.axisLeft(pmYAxis).ticks(10, d3.format(".2s")));
 
-    // // add the X gridlines
-    // perMillionGroup.append("g")
-    //     .attr("class", "grid")
-    //     .attr("transform", "translate(" + (margin.left) + "," + (height + margin.top) + ")")
-    //     .call(make_x_gridlines(pmXAxis)
-    //         .tickSize(-height)
-    //         .tickFormat(""));
-    //
-    // // add the Y gridlines
-    // perMillionGroup.append("g")
-    //     .attr("class", "grid")
-    //     .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
-    //     .call(make_y_gridlines(pmYAxis)
-    //         .tickSize(-width)
-    //         .tickFormat(""));
+    // add the X gridlines
+    perMillionGroup.append("g")
+        .attr("class", "grid")
+        .attr("transform", "translate(" + (margin.left) + "," + (height + margin.top) + ")")
+        .call(make_x_gridlines(pmXAxis)
+            .tickSize(-height)
+            .tickFormat(""));
+
+    // add the Y gridlines
+    perMillionGroup.append("g")
+        .attr("class", "grid")
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+        .call(make_y_gridlines(pmYAxis)
+            .tickSize(-width)
+            .tickFormat(""));
 
     // Line for Cases Per Million
-    var cLineFn = d3.line()
+    let cLineFn = d3.line()
         .x(d => pmXAxis(d.date))
         .y(d => pmYAxis(d.total_cases_per_million))
 
-    var caseColor = d3.scaleOrdinal().domain(data)
+    let caseColor = d3.scaleOrdinal().domain(data)
         .range(["#FF6633", "#FFC300" , "#581845"]);
 
     let cLines = perMillionGroup.append("g")
@@ -133,11 +132,11 @@ export const renderPerMillionChart = function(data, width, height, margin) {
         });
 
     // Line for Deaths Per Million
-    var dLineFn = d3.line()
+    let dLineFn = d3.line()
         .x(d => pmXAxis(d.date))
         .y(d => pmYAxis(d.total_deaths_per_million));
     //
-    var deathColor = d3.scaleOrdinal().domain(data)
+    let deathColor = d3.scaleOrdinal().domain(data)
         .range(["#D7BDE2", "#76448A", "#FF66CC"]);
 
     let dLines = perMillionGroup.append("g")
@@ -182,77 +181,6 @@ export const renderPerMillionChart = function(data, width, height, margin) {
         cellLabels.push({ "name": item[0].location + " (Cases)", "color": caseColor(i) });
         cellLabels.push({ "name": item[0].location + " (Deaths)", "color": deathColor(i) });
     });
-
-
-    // Zoom Handling
-    // var zoomPerMillion = d3.zoom()
-    //     .scaleExtent([1, Infinity])
-    //     .extent([[margin.left, 0], [width - margin.right, height]])
-    //     .translateExtent([[margin.left, -Infinity], [width - margin.right, Infinity]])
-    //     .on("zoom", zoomed);
-    //
-    // var reset = d3.select('#resetZoom');
-    // reset.style("visibility", "visible");
-    // reset.text("Reset Zoom");
-    // reset.on("click", function() {
-    //     pmsvg.transition().call(zoomPerMillion.transform, d3.zoomIdentity);
-    // });
-    //
-    // pmsvg.call(zoomPerMillion);
-
-    // function zoomed() {
-    //     if (d3.event.sourceEvent != null) {
-    //         if (d3.event.sourceEvent.target.id == "perMillionChart") {
-    //
-    //             // Rescale Axes
-    //             let newXAxis = d3.event.transform.rescaleX(pmXAxis),
-    //                 newYAxis = d3.event.transform.rescaleY(pmYAxis);
-    //
-    //             cLineFn.x(d => newXAxis(d.date));
-    //             cLineFn.y(d => newYAxis(d.total_cases_per_million));
-    //             dLineFn.x(d => newXAxis(d.date));
-    //             dLineFn.y(d => newYAxis(d.total_deaths_per_million));
-    //             //
-    //             gpmX.call(d3.axisBottom(newXAxis));
-    //             gpmY.call(d3.axisLeft(newYAxis));
-    //
-    //             // let xt = myTransform.rescaleX(newXAxis),
-    //             //     yt = myTransform.rescaleY(newYAxis);
-    //             //
-    //             // let newCLine = d3.line()
-    //             //     .x(d => xt(d.date))
-    //             //     .y(d => yt(d.total_cases_per_million));
-    //             //
-    //             // let newDLine = d3.line()
-    //             //     .x(d => xt(d.date))
-    //             //     .y(d => yt(d.total_deaths_per_million));
-    //             //
-    //             // d3.selectAll(".case-line")
-    //             //     .enter()
-    //             //     .attr("d", d => newCLine(d));
-    //
-    //
-    //             //
-    //             pmsvg.selectAll(".case-lines-group")
-    //                 .data(data).enter()
-    //                 .attr("d", d => cLineFn(data));
-    //             //
-    //             // dLines.selectAll(".death-lines-group")
-    //             //     .data(data).enter()
-    //             //     .attr("d", newDPlot);
-    //
-    //             // caseLine.attr("d", newCPlot);
-    //             // deathLine.attr("d", newDPlot);
-    //
-    //             // pmsvg.append("defs").append("clipPath").attr("id","clip")
-    //             //       .append("rect").attr("width",width).attr("height",height);
-    //             // caseLine.attr("clip-path","url(#clip)");
-    //             // deathLine.attr("clip-path","url(#clip)");
-    //         }
-    //     } else {
-    //         render(data);
-    //     }
-    // }
 }
 
 

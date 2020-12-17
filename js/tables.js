@@ -2,9 +2,9 @@ import { filterByNation, loadNations, preprocess } from "./data.js";
 
 export const loadTables = function (worldData, nationsArray) {
     let maxSize = nationsArray.length;
-    var deaths = new Array(maxSize);
-    var cases = new Array(maxSize);
-    var tests = new Array(maxSize);
+    let deaths = new Array(maxSize);
+    let cases = new Array(maxSize);
+    let tests = new Array(maxSize);
 
     nationsArray.forEach((item, i) => {
         let nationData = filterByNation(worldData, item);

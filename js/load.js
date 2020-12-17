@@ -12,8 +12,8 @@ let resetDefault = d3.select("#resetDefaults");
 resetDefault.text("Reset Defaults");
 
 function loadCharts() {
-    var nations, selectedNation;
-    var opts = {
+    let nations, selectedNation;
+    let opts = {
           lines: 13, // The number of lines to draw
           length: 38, // The length of each line
           width: 17, // The line thickness
@@ -33,16 +33,16 @@ function loadCharts() {
           className: 'spinner', // The CSS class to assign to the spinner
           position: 'absolute', // Element positioning
     };
-    var charts = document.getElementById("container-main");
-    var target = document.getElementById("spinner");
-    var spinner = new Spin.Spinner(opts).spin(target);
+    let charts = document.getElementById("container-main");
+    let target = document.getElementById("spinner");
+    let spinner = new Spin.Spinner(opts).spin(target);
     // Begin processing data and rendering charts
     d3.csv("https://covid.ourworldindata.org/data/owid-covid-data.csv", function(data) {
         spinner.stop();
         resetDefault.style("visibility", "visible");
         charts.style.visibility = "visible";
-        var preset = "United States";
-        var preprocessed = preprocess(data);
+        let preset = "United States";
+        let preprocessed = preprocess(data);
         nations = Array.from(loadNations(data));
         selectedNation = loadNationData(data, preset);
 
@@ -76,7 +76,6 @@ function loadCharts() {
                 dataFilter.push(loadNationData(data, item));
             });
 
-            // var dataFilter = loadNationData(data, selectedNations[0]);
             render(dataFilter);
         }
 
@@ -96,8 +95,8 @@ function loadCharts() {
 }
 
 function loadNations(data) {
-    var fn = (arr, n) => arr.map(x => x[n]);
-    var extracted = fn(data, "location");
+    let fn = (arr, n) => arr.map(x => x[n]);
+    let extracted = fn(data, "location");
     return new Set(extracted);
 }
 

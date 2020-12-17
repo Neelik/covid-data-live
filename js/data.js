@@ -4,8 +4,8 @@ export const filterByNation = function(fullData, nation) {
 }
 
 export const loadNations = function(fullData) {
-    var fn = (arr, n) => arr.map(x => x[n]);
-    var extracted = fn(data, "location");
+    let fn = (arr, n) => arr.map(x => x[n]);
+    let extracted = fn(data, "location");
     return new Set(extracted);
 }
 
