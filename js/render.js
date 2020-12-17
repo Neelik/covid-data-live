@@ -1,6 +1,7 @@
 export const render = function(data) {
     // Remove old charts
     d3.select(".pm-group").remove();
+    d3.select("legend-group").remove();
 
     // set the dimensions and margins of the graph
     var width = 900;
@@ -10,7 +11,7 @@ export const render = function(data) {
         "top": 15,
         "bottom": 100
     };
-    var height = 300;
+    var height = 500;
 
     // Render the chart
     renderPerMillionChart(data, width, height, margin);
@@ -44,12 +45,14 @@ export const renderPerMillionChart = function(data, width, height, margin) {
         pmYAxesMaxOptions.push(d3.max(item, d => d.total_deaths_per_million));
     });
 
-    var pmYMin = d3.min(pmYAxesMinOptions);
+    var pmYMin = d3.min(pmYAxesMinOptions) == 0 ? 10 : d3.min(pmYAxesMinOptions);
     var pmYMax = d3.max(pmYAxesMaxOptions);
 
-    var pmYAxis = d3.scaleLinear()
-        .domain( [pmYMin, pmYMax * 1.25])
-        .range([ height, 0 ]);
+    var pmYAxis = d3.scaleLog()
+        .domain( [pmYMin, pmYMax])
+        .range([ height, 0 ])
+        .clamp(true)
+        .nice();
 
     // Set up groups for the Per Million Chart
     var gpmX = perMillionGroup.append("g")
@@ -66,23 +69,23 @@ export const renderPerMillionChart = function(data, width, height, margin) {
         .attr("class", "axis axis--y")
         .call(pmYAxis);
     gpmY.append("g")
-        .call(d3.axisLeft(pmYAxis));
+        .call(d3.axisLeft(pmYAxis).ticks(10, d3.format(".2s")));
 
-    // add the X gridlines
-    perMillionGroup.append("g")
-        .attr("class", "grid")
-        .attr("transform", "translate(" + (margin.left) + "," + (height + margin.top) + ")")
-        .call(make_x_gridlines(pmXAxis)
-            .tickSize(-height)
-            .tickFormat(""));
-
-    // add the Y gridlines
-    perMillionGroup.append("g")
-        .attr("class", "grid")
-        .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
-        .call(make_y_gridlines(pmYAxis)
-            .tickSize(-width)
-            .tickFormat(""));
+    // // add the X gridlines
+    // perMillionGroup.append("g")
+    //     .attr("class", "grid")
+    //     .attr("transform", "translate(" + (margin.left) + "," + (height + margin.top) + ")")
+    //     .call(make_x_gridlines(pmXAxis)
+    //         .tickSize(-height)
+    //         .tickFormat(""));
+    //
+    // // add the Y gridlines
+    // perMillionGroup.append("g")
+    //     .attr("class", "grid")
+    //     .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+    //     .call(make_y_gridlines(pmYAxis)
+    //         .tickSize(-width)
+    //         .tickFormat(""));
 
     // Line for Cases Per Million
     var cLineFn = d3.line()
@@ -173,6 +176,13 @@ export const renderPerMillionChart = function(data, width, height, margin) {
                 .style("stroke-width", 3)
                 .style("cursor", "none");
         });
+
+    let cellLabels = [];
+    data.forEach((item, i) => {
+        cellLabels.push({ "name": item[0].location + " (Cases)", "color": caseColor(i) });
+        cellLabels.push({ "name": item[0].location + " (Deaths)", "color": deathColor(i) });
+    });
+
 
     // Zoom Handling
     // var zoomPerMillion = d3.zoom()
